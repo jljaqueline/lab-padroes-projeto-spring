@@ -1,10 +1,16 @@
 package one.digitalinnovation.gof.service.impl;
 
+//import static org.junit.jupiter.api.DynamicTest.stream;
+
 import java.util.Optional;
+import java.util.stream.Collectors;
+import java.util.stream.StreamSupport;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import one.digitalinnovation.gof.dto.ClienteDTO;
+import one.digitalinnovation.gof.factory.ClienteFactory;
 import one.digitalinnovation.gof.model.Cliente;
 import one.digitalinnovation.gof.model.ClienteRepository;
 import one.digitalinnovation.gof.model.Endereco;
@@ -34,18 +40,23 @@ public class ClienteServiceImpl implements ClienteService {
 	// Facade: Abstrair integrações com subsistemas, provendo uma interface simples.
 
 	@Override
-	public Iterable<Cliente> buscarTodos() {
+	public Iterable<ClienteDTO> buscarTodos() {
+	
 		// Buscar todos os Clientes.
-		return clienteRepository.findAll();
+		 return StreamSupport.stream(clienteRepository.findAll().spliterator(), false)
+                            .map(ClienteFactory::createDTO)
+                            .collect(Collectors.toList());
 	}
 
 	@Override
-	public Cliente buscarPorId(Long id) {
-		// Buscar Cliente por ID.
-		Optional<Cliente> cliente = clienteRepository.findById(id);
-		return cliente.get();
+	public ClienteDTO buscarPorId(Long id) {
+		//Buscar Cliente por ID.
+		Cliente cliente = clienteRepository.findById(id).orElse(null);
+        return ClienteFactory.createDTO(cliente);
+		
 	}
 
+	
 	@Override
 	public void inserir(Cliente cliente) {
 		salvarClienteComCep(cliente);
